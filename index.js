@@ -56,14 +56,31 @@ app.delete('/api/persons/:id', (req, res) => {
 })
 
 app.post('/api/persons', (req, res) => {
-  const person = {
-    ...req.body,
-    id: Math.floor(Math.random() * Math.floor(1000)),
+  const clean = (str) => str.toLowerCase().trim()
+
+  if (!req.body.name) {
+    res.status(400).json({
+      error: 'name is mandatory',
+    })
+  } else if (!req.body.number) {
+    res.status(400).json({
+      error: 'number is mandatory',
+    })
+  } else if (persons.find((p) => clean(p.name) === clean(req.body.name))) {
+    res.status(400).json({
+      error: 'name must be unique',
+    })
+  } else {
+    const person = {
+      name: req.body.name,
+      number: req.body.number,
+      id: Math.floor(Math.random() * Math.floor(1000)),
+    }
+
+    persons = persons.concat(person)
+
+    res.json(person)
   }
-
-  persons = persons.concat(person)
-
-  res.json(person)
 })
 
 app.listen(port, () => {
