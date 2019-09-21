@@ -28,8 +28,17 @@ let persons = [
   }
 ]
 
-app.use(morgan('tiny'))
 app.use(bodyParser.json())
+app.use(morgan((tokens, req, res) => [
+  tokens.method(req, res),
+  tokens.url(req, res),
+  tokens.status(req, res),
+  tokens.res(req, res, 'content-length'),
+  '-',
+  tokens['response-time'](req, res),
+  'ms',
+  tokens.method(req, res) === 'POST' && req.body ? JSON.stringify(req.body) : '',
+].join(' ')))
 
 app.get('/info', (req, res) => {
   const line1 = `<p>Phonebook has info for ${persons.length} people</p>`
